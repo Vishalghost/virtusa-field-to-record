@@ -8,6 +8,10 @@ import type { AsrSegment } from './timing';
 env.allowRemoteModels = false;
 env.allowLocalModels = true;
 env.localModelPath = '/models/';
+// The service worker already caches /models/ for offline use. transformers.js's own
+// Cache Storage copy doubled the storage, and it cached the HTML fallback page as a
+// model file when a model was missing, which never recovered.
+env.useBrowserCache = false;
 env.backends.onnx.wasm!.wasmPaths = {
   mjs: '/ort/ort-wasm-simd-threaded.asyncify.mjs',
   wasm: '/ort/ort-wasm-simd-threaded.asyncify.wasm',

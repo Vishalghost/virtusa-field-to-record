@@ -1,0 +1,71 @@
+[
+  { "name": "IV access", "code": "PROC-IV", "patterns": [
+    "(?<detail>(?:14|16|18|20|22|24) ?(?:g|gauge))\\s+(?:iv|angio(?:cath)?|catheter)\\b",
+    "\\b(?:started|establish(?:ed)?|placed|initiated|obtained|got|inserted|start|place)\\s+(?:an?\\s+|a\\s+line\\s+|two\\s+|2\\s+|bilateral\\s+)?(?:(?<detail>(?:14|16|18|20|22|24) ?(?:g|gauge))\\s+)?iv\\b(?!\\s+(?:push|bolus))",
+    "\\biv\\s+(?:access|line|established|started|placed)\\b"
+  ] },
+  { "name": "IO access", "code": "PROC-IO", "patterns": [
+    "\\b(?:started|establish(?:ed)?|placed|initiated|obtained|got|inserted|drilled)\\s+(?:an?\\s+)?(?:(?<detail>\\d{2} ?(?:mm|g|gauge))\\s+)?io\\b",
+    "\\bio\\s+(?:access|line|established|placed)\\b",
+    "\\bintraosseous\\s+(?:access|line|needle)\\b"
+  ] },
+  { "name": "Endotracheal intubation", "code": "PROC-ETI", "patterns": [
+    "\\b(?:intubated|intubation|et\\s+tube|ett\\s+placed|endotracheal\\s+tube)\\b(?:\\s+with)?(?:\\s+an?)?(?:\\s+(?<detail>\\d(?:\\.\\d)?\\s*(?:et|ett|tube)?))?"
+  ] },
+  { "name": "Supraglottic airway", "code": "PROC-SGA", "patterns": [
+    "\\b(?:i[- ]?gel|king\\s+airway|king\\s+tube|lma|supraglottic(?:\\s+airway)?)\\b(?:\\s+(?:size\\s+)?(?<detail>\\d(?:\\.\\d)?))?"
+  ] },
+  { "name": "Bag-valve-mask ventilation", "code": "PROC-BVM", "patterns": [
+    "\\b(?:bvm|bag[- ]valve[- ]mask|bagging|bagged)\\b"
+  ] },
+  { "name": "CPR", "code": "PROC-CPR", "patterns": [
+    "\\b(?:cpr|chest\\s+compressions|compressions\\s+(?:started|initiated|resumed))\\b"
+  ] },
+  { "name": "Defibrillation", "code": "PROC-DEFIB", "patterns": [
+    "\\b(?:defibrillat\\w*|shock(?:ed)?)\\b(?:\\s+\\w+){0,3}?\\s+(?:at\\s+)?(?<detail>\\d{2,3}\\s*j)\\b",
+    "\\b(?:defibrillated|shocked|delivered\\s+(?:a|one|1)\\s+shock)\\b"
+  ] },
+  { "name": "Synchronized cardioversion", "code": "PROC-CARDIOVERT", "patterns": [
+    "\\b(?:synchronized\\s+)?cardiovert(?:ed|ion)\\b(?:\\s+\\w+){0,3}?(?:\\s+(?:at\\s+)?(?<detail>\\d{2,3}\\s*j))?"
+  ] },
+  { "name": "12-lead ECG", "code": "PROC-12LEAD", "patterns": [
+    "\\b(?:12|twelve)[- ]lead\\b(?:\\s+(?:ecg|ekg))?",
+    "\\b(?:ecg|ekg)\\s+(?:acquired|obtained|done|performed)\\b"
+  ] },
+  { "name": "Cardiac monitoring", "code": "PROC-MONITOR", "patterns": [
+    "\\b(?:placed|put)\\s+(?:on|the\\s+patient\\s+on)\\s+(?:the\\s+)?(?:cardiac\\s+)?monitor\\b"
+  ] },
+  { "name": "Blood glucose check", "code": "PROC-BGL", "patterns": [
+    "\\b(?:blood\\s+(?:glucose|sugar)|bgl|bg|cbg|glucometer|fingerstick)\\b(?:\\s+(?:check(?:ed)?|was|of|reading|read))*\\s*(?<detail>\\d{2,3})?"
+  ] },
+  { "name": "Spinal motion restriction", "code": "PROC-SMR", "patterns": [
+    "\\b(?:c[- ]?collar|cervical\\s+collar|spinal\\s+motion\\s+restriction|smr|backboard(?:ed)?|spinal\\s+immobilization)\\b"
+  ] },
+  { "name": "Splinting", "code": "PROC-SPLINT", "patterns": [
+    "\\b(?:splinted|splint(?:ing)?\\s+(?:applied|placed)|applied\\s+(?:a\\s+)?(?:sam\\s+|traction\\s+)?splint|traction\\s+splint)\\b"
+  ] },
+  { "name": "Tourniquet application", "code": "PROC-TQ", "patterns": [
+    "\\b(?:tourniquet|cat\\s+tourniquet|tq)\\b(?:\\s+(?:applied|placed))?"
+  ] },
+  { "name": "Wound packing / hemorrhage control", "code": "PROC-HEMO", "patterns": [
+    "\\b(?:wound\\s+packed|packed\\s+the\\s+wound|wound\\s+packing|direct\\s+pressure\\s+applied|pressure\\s+dressing)\\b"
+  ] },
+  { "name": "Needle decompression", "code": "PROC-NEEDLED", "patterns": [
+    "\\bneedle\\s+(?:decompression|decompressed|thoracostomy)\\b"
+  ] },
+  { "name": "Suctioning", "code": "PROC-SUCTION", "patterns": [
+    "\\b(?:suctioned|suctioning|suction\\s+(?:applied|performed))\\b"
+  ] },
+  { "name": "CPAP", "code": "PROC-CPAP", "patterns": [
+    "\\bcpap\\b(?:\\s+(?:at\\s+)?(?<detail>\\d{1,2}\\s*(?:cm|cmh2o|cm\\s+h2o)))?"
+  ] },
+  { "name": "Capnography", "code": "PROC-ETCO2", "patterns": [
+    "\\b(?:etco2|end[- ]tidal|capnography|waveform\\s+capno\\w*)\\b"
+  ] },
+  { "name": "Nasopharyngeal airway", "code": "PROC-NPA", "patterns": [
+    "\\b(?:npa|nasal\\s+airway|nasopharyngeal\\s+airway)\\b"
+  ] },
+  { "name": "Oropharyngeal airway", "code": "PROC-OPA", "patterns": [
+    "\\b(?:opa|oral\\s+airway|oropharyngeal\\s+airway)\\b"
+  ] }
+]

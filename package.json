@@ -1,0 +1,35 @@
+{
+  "name": "field-to-record",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Offline voice-to-structured clinical note generator (PWA) for first responders",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "eval": "tsx scripts/eval.ts",
+    "fetch-models": "node scripts/fetch-models.mjs",
+    "verify-rxnorm": "node scripts/verify-rxnorm.mjs",
+    "asr:node": "node scripts/asr-node.mjs",
+    "e2e": "node scripts/e2e-offline.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.3.2",
+    "idb": "^8.0.4",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.9",
+    "preact": "^11.1.0",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@types/qrcode": "^1.5.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.5"
+  }
+}

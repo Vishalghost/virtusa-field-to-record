@@ -1,0 +1,836 @@
+[
+  {
+    "id": "syn-001",
+    "tags": [
+      "anaphylaxis",
+      "clean"
+    ],
+    "text": "Gave 0.3 mg epi IM right thigh at 14:32.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "epinephrine",
+          "dose": 0.3,
+          "unit": "mg",
+          "route": "IM",
+          "site": "right thigh",
+          "time": "14:32"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-002",
+    "tags": [
+      "overdose",
+      "number-words"
+    ],
+    "text": "Patient unresponsive with pinpoint pupils. Narcan four milligrams IN at fourteen oh five. Then started 18g IV left AC.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "naloxone",
+          "dose": 4,
+          "unit": "mg",
+          "route": "IN",
+          "site": null,
+          "time": null
+        }
+      ],
+      "procedures": [
+        {
+          "procedure": "IV access",
+          "detail": "18G",
+          "site": "left antecubital",
+          "time": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "syn-003",
+    "tags": [
+      "chest-pain",
+      "number-words",
+      "multi-drug"
+    ],
+    "text": "Chest pain, aspirin three twenty four milligrams PO at 09:10. Nitro point four milligrams SL at 09:12. 12 lead acquired.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "aspirin",
+          "dose": 324,
+          "unit": "mg",
+          "route": "PO",
+          "site": null,
+          "time": "09:10"
+        },
+        {
+          "drug": "nitroglycerin",
+          "dose": 0.4,
+          "unit": "mg",
+          "route": "SL",
+          "site": null,
+          "time": "09:12"
+        }
+      ],
+      "procedures": [
+        {
+          "procedure": "12-lead ECG",
+          "detail": null,
+          "site": null,
+          "time": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "syn-004",
+    "tags": [
+      "nausea",
+      "dose-before-drug",
+      "two-drugs-one-clause"
+    ],
+    "text": "Gave 4 mg of zofran and 25 mg of benadryl IV at 1520.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "ondansetron",
+          "dose": 4,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "15:20"
+        },
+        {
+          "drug": "diphenhydramine",
+          "dose": 25,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "15:20"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-005",
+    "tags": [
+      "asthma",
+      "neb"
+    ],
+    "text": "Albuterol 2.5 mg and ipratropium 0.5 mg via neb at 10:40, patient on nasal cannula prior.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "albuterol",
+          "dose": 2.5,
+          "unit": "mg",
+          "route": "NEB",
+          "site": null,
+          "time": "10:40"
+        },
+        {
+          "drug": "ipratropium",
+          "dose": 0.5,
+          "unit": "mg",
+          "route": "NEB",
+          "site": null,
+          "time": "10:40"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-006",
+    "tags": [
+      "cardiac-arrest",
+      "procedures"
+    ],
+    "text": "Found in cardiac arrest, CPR in progress. Shocked at 200 joules at 02:14. IO access established right tibia. Epi 1 mg IO at 02:16. Amiodarone 300 mg IO at 02:20.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "epinephrine",
+          "dose": 1,
+          "unit": "mg",
+          "route": "IO",
+          "site": null,
+          "time": "02:16"
+        },
+        {
+          "drug": "amiodarone",
+          "dose": 300,
+          "unit": "mg",
+          "route": "IO",
+          "site": null,
+          "time": "02:20"
+        }
+      ],
+      "procedures": [
+        {
+          "procedure": "CPR",
+          "detail": null,
+          "site": null,
+          "time": null
+        },
+        {
+          "procedure": "Defibrillation",
+          "detail": "200J",
+          "site": null,
+          "time": "02:14"
+        },
+        {
+          "procedure": "IO access",
+          "detail": null,
+          "site": "right tibia",
+          "time": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "syn-007",
+    "tags": [
+      "asr-misspelling"
+    ],
+    "text": "Nausea and vomiting. Gave on dance a tron 4 mg IV at 11:05.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "ondansetron",
+          "dose": 4,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "11:05"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-008",
+    "tags": [
+      "correction"
+    ],
+    "text": "Fentanyl 100 mcg IV, scratch that, fentanyl 50 mcg IV at 13:30.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "fentanyl",
+          "dose": 50,
+          "unit": "mcg",
+          "route": "IV",
+          "site": null,
+          "time": "13:30"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-009",
+    "tags": [
+      "hypoglycemia",
+      "number-words"
+    ],
+    "text": "Blood glucose 38. Started 20 gauge IV right hand. D50 twenty five grams IV at 07:45.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "dextrose",
+          "dose": 25,
+          "unit": "g",
+          "route": "IV",
+          "site": null,
+          "time": "07:45"
+        }
+      ],
+      "procedures": [
+        {
+          "procedure": "Blood glucose check",
+          "detail": "38",
+          "site": null,
+          "time": null
+        },
+        {
+          "procedure": "IV access",
+          "detail": "20G",
+          "site": "right hand",
+          "time": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "syn-010",
+    "tags": [
+      "seizure"
+    ],
+    "text": "Actively seizing on arrival. Versed 5 mg IM left deltoid at 16:02. Seizure stopped.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "midazolam",
+          "dose": 5,
+          "unit": "mg",
+          "route": "IM",
+          "site": "left deltoid",
+          "time": "16:02"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-011",
+    "tags": [
+      "missing-dose"
+    ],
+    "text": "Gave zofran IV for nausea.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "ondansetron",
+          "dose": null,
+          "unit": null,
+          "route": "IV",
+          "site": null,
+          "time": null
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-012",
+    "tags": [
+      "trauma",
+      "procedures"
+    ],
+    "text": "Arterial bleed left thigh, tourniquet applied at 21:10. TXA 1 gram IV over 10 minutes. C-collar placed.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "tranexamic acid",
+          "dose": 1,
+          "unit": "g",
+          "route": "IV",
+          "site": null,
+          "time": null
+        }
+      ],
+      "procedures": [
+        {
+          "procedure": "Tourniquet application",
+          "detail": null,
+          "site": "left thigh",
+          "time": "21:10"
+        },
+        {
+          "procedure": "Spinal motion restriction",
+          "detail": null,
+          "site": null,
+          "time": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "syn-013",
+    "tags": [
+      "respiratory",
+      "oxygen"
+    ],
+    "text": "O2 15 liters per minute via non-rebreather at 08:00. CPAP at 10 cm at 08:05.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "oxygen",
+          "dose": 15,
+          "unit": "lpm",
+          "route": "INH",
+          "site": null,
+          "time": "08:00"
+        }
+      ],
+      "procedures": [
+        {
+          "procedure": "CPAP",
+          "detail": "10CM",
+          "site": null,
+          "time": "08:05"
+        }
+      ]
+    }
+  },
+  {
+    "id": "syn-014",
+    "tags": [
+      "pain",
+      "dose-before-drug"
+    ],
+    "text": "Pain 9 out of 10. Administered 50 mcg of fentanyl intranasally at 12:15.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "fentanyl",
+          "dose": 50,
+          "unit": "mcg",
+          "route": "IN",
+          "site": null,
+          "time": "12:15"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-015",
+    "tags": [
+      "svt"
+    ],
+    "text": "SVT at 180. Adenosine 6 mg rapid IV push at 03:30, then adenosine 12 mg IV push at 03:33.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "adenosine",
+          "dose": 6,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "03:30"
+        },
+        {
+          "drug": "adenosine",
+          "dose": 12,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "03:33"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-016",
+    "tags": [
+      "airway",
+      "rsi"
+    ],
+    "text": "RSI. Etomidate 20 mg IV and rocuronium 100 mg IV at 05:50. Intubated with a 7.5 tube at 05:52. Waveform capnography confirmed.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "etomidate",
+          "dose": 20,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "05:50"
+        },
+        {
+          "drug": "rocuronium",
+          "dose": 100,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "05:50"
+        }
+      ],
+      "procedures": [
+        {
+          "procedure": "Endotracheal intubation",
+          "detail": "7.5TUBE",
+          "site": null,
+          "time": "05:52"
+        },
+        {
+          "procedure": "Capnography",
+          "detail": null,
+          "site": null,
+          "time": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "syn-017",
+    "tags": [
+      "allergic",
+      "asr-misspelling"
+    ],
+    "text": "Hives and itching. Diphenhydramine 50 milligrams IM right deltoid. Solu-medrol one twenty five milligrams IV.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "diphenhydramine",
+          "dose": 50,
+          "unit": "mg",
+          "route": "IM",
+          "site": "right deltoid",
+          "time": null
+        },
+        {
+          "drug": "methylprednisolone",
+          "dose": 125,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": null
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-018",
+    "tags": [
+      "agitation",
+      "multi-drug"
+    ],
+    "text": "Combative patient. Ketamine 250 mg IM left thigh at 23:40.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "ketamine",
+          "dose": 250,
+          "unit": "mg",
+          "route": "IM",
+          "site": "left thigh",
+          "time": "23:40"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-019",
+    "tags": [
+      "fluids"
+    ],
+    "text": "Normal saline 500 ml bolus IV wide open at 17:20.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "sodium chloride",
+          "dose": 500,
+          "unit": "ml",
+          "route": "IV",
+          "site": null,
+          "time": "17:20"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-020",
+    "tags": [
+      "stroke",
+      "procedures-only"
+    ],
+    "text": "Possible stroke. Blood sugar 112. 12-lead obtained, placed on cardiac monitor. No meds given.",
+    "gold": {
+      "medications": [],
+      "procedures": [
+        {
+          "procedure": "Blood glucose check",
+          "detail": "112",
+          "site": null,
+          "time": null
+        },
+        {
+          "procedure": "12-lead ECG",
+          "detail": null,
+          "site": null,
+          "time": null
+        },
+        {
+          "procedure": "Cardiac monitoring",
+          "detail": null,
+          "site": null,
+          "time": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "syn-021",
+    "tags": [
+      "asr-misspelling"
+    ],
+    "text": "Gave narcane 2 mg IV at 19:05, respirations improved.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "naloxone",
+          "dose": 2,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "19:05"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-022",
+    "tags": [
+      "hypoglycemia",
+      "im"
+    ],
+    "text": "No IV access possible. Glucagon 1 mg IM at 06:20.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "glucagon",
+          "dose": 1,
+          "unit": "mg",
+          "route": "IM",
+          "site": null,
+          "time": "06:20"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-023",
+    "tags": [
+      "bradycardia"
+    ],
+    "text": "Symptomatic bradycardia rate 38. Atropine 1 mg IV at 04:10. Pads placed.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "atropine",
+          "dose": 1,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "04:10"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-024",
+    "tags": [
+      "dose-before-drug",
+      "two-drugs-one-clause"
+    ],
+    "text": "Administered 324 mg aspirin PO and 0.4 mg nitroglycerin SL at 12:00.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "aspirin",
+          "dose": 324,
+          "unit": "mg",
+          "route": "PO",
+          "site": null,
+          "time": "12:00"
+        },
+        {
+          "drug": "nitroglycerin",
+          "dose": 0.4,
+          "unit": "mg",
+          "route": "SL",
+          "site": null,
+          "time": "12:00"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-025",
+    "tags": [
+      "number-words",
+      "mcg"
+    ],
+    "text": "Fentanyl one hundred micrograms IV at 22:15, pain now 4 out of 10.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "fentanyl",
+          "dose": 100,
+          "unit": "mcg",
+          "route": "IV",
+          "site": null,
+          "time": "22:15"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-026",
+    "tags": [
+      "trauma",
+      "procedures"
+    ],
+    "text": "Penetrating chest wound right side. Needle decompression right chest at 01:30. Wound packed, BVM ventilation.",
+    "gold": {
+      "medications": [],
+      "procedures": [
+        {
+          "procedure": "Needle decompression",
+          "detail": null,
+          "site": "right chest",
+          "time": "01:30"
+        },
+        {
+          "procedure": "Wound packing / hemorrhage control",
+          "detail": null,
+          "site": null,
+          "time": null
+        },
+        {
+          "procedure": "Bag-valve-mask ventilation",
+          "detail": null,
+          "site": null,
+          "time": null
+        }
+      ]
+    }
+  },
+  {
+    "id": "syn-027",
+    "tags": [
+      "missing-route"
+    ],
+    "text": "Gave morphine 4 mg at 18:30 for pain.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "morphine",
+          "dose": 4,
+          "unit": "mg",
+          "route": null,
+          "site": null,
+          "time": "18:30"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-028",
+    "tags": [
+      "repeat-dose"
+    ],
+    "text": "Epi 0.3 mg IM at 10:00. No improvement, repeated epi 0.3 mg IM at 10:05.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "epinephrine",
+          "dose": 0.3,
+          "unit": "mg",
+          "route": "IM",
+          "site": null,
+          "time": "10:00"
+        },
+        {
+          "drug": "epinephrine",
+          "dose": 0.3,
+          "unit": "mg",
+          "route": "IM",
+          "site": null,
+          "time": "10:05"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-029",
+    "tags": [
+      "asr-misspelling",
+      "number-words"
+    ],
+    "text": "Gave ketorolack fifteen milligrams IV at 14:00.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "ketorolac",
+          "dose": 15,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "14:00"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-030",
+    "tags": [
+      "correction",
+      "dose-before-drug"
+    ],
+    "text": "Gave 10 mg of versed IV, correction, 2.5 mg of versed IV at 20:20.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "midazolam",
+          "dose": 2.5,
+          "unit": "mg",
+          "route": "IV",
+          "site": null,
+          "time": "20:20"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-031",
+    "tags": [
+      "negation",
+      "allergy"
+    ],
+    "text": "Allergic to morphine. Gave fentanyl 50 mcg IV at 13:00.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "fentanyl",
+          "dose": 50,
+          "unit": "mcg",
+          "route": "IV",
+          "site": null,
+          "time": "13:00"
+        }
+      ],
+      "procedures": []
+    }
+  },
+  {
+    "id": "syn-032",
+    "tags": [
+      "negation"
+    ],
+    "text": "Patient refused aspirin. No improvement after nitro 0.4 mg SL at 08:30.",
+    "gold": {
+      "medications": [
+        {
+          "drug": "nitroglycerin",
+          "dose": 0.4,
+          "unit": "mg",
+          "route": "SL",
+          "site": null,
+          "time": "08:30"
+        }
+      ],
+      "procedures": []
+    }
+  }
+]

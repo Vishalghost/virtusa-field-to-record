@@ -1,0 +1,101 @@
+// Core data model for a Field-to-Record clinical note.
+// Every extracted value carries the span of transcript text it came from, so a
+// reviewer (or auditor) can always trace a field back to what was actually said.
+
+export interface Span {
+  start: number; // char offset into the verbatim transcript (inclusive)
+  end: number; // exclusive
+}
+
+export type EntityType = 'DRUG' | 'DOSE' | 'ROUTE' | 'PROCEDURE' | 'SITE' | 'TIME' | 'CORRECTION';
+
+export interface Entity {
+  type: EntityType;
+  /** Canonical value: drug name, route code, "HH:MM", procedure name, site text, dose number as string. */
+  value: string;
+  /** Exact transcript text the entity was read from. */
+  text: string;
+  span: Span;
+  /** Offset into the normalized text; used internally for ordering/proximity. */
+  normStart: number;
+  confidence: number;
+  unit?: string; // DOSE only
+  code?: string; // DRUG: RxNorm CUI
+  detail?: string; // PROCEDURE: e.g. "18g", "200 J"
+  alternatives?: number[]; // DOSE: "2 or 5 mg" -> [2, 5], value is ''
+}
+
+export type ReviewSeverity = 'block' | 'warn';
+
+export interface ReviewFlag {
+  severity: ReviewSeverity;
+  reason: string;
+}
+
+export interface MedicationEvent {
+  kind: 'medication';
+  id: string;
+  drug: string | null;
+  rxnorm: string | null;
+  dose: number | null;
+  /** Set when two doses were said ("2 or 5 mg"); `dose` then stays null until a human picks. */
+  doseAlternatives?: number[];
+  unit: string | null;
+  route: string | null;
+  site: string | null;
+  /** Time stated in the dictation ("HH:MM"), or null if none was said. Never guessed. */
+  administeredAt: string | null;
+  confidence: number;
+  sourceSpans: Span[];
+  flags: ReviewFlag[];
+  confirmed: boolean;
+}
+
+export interface ProcedureEvent {
+  kind: 'procedure';
+  id: string;
+  procedure: string;
+  code: string;
+  detail: string | null;
+  site: string | null;
+  performedAt: string | null;
+  confidence: number;
+  sourceSpans: Span[];
+  flags: ReviewFlag[];
+  confirmed: boolean;
+}
+
+export type ClinicalEvent = MedicationEvent | ProcedureEvent;
+
+export interface EditEntry {
+  at: string; // ISO timestamp
+  eventId: string;
+  field: string;
+  from: unknown;
+  to: unknown;
+}
+
+export interface ClinicalRecord {
+  id: string;
+  version: number;
+  /** id of the record version this one amends, if any. */
+  supersedes: string | null;
+  incidentId: string;
+  source: 'voice' | 'text';
+  /** Device clock when the note was captured (ISO). */
+  recordedAt: string;
+  /** Verbatim transcript; never modified after extraction. */
+  transcript: string;
+  medications: MedicationEvent[];
+  procedures: ProcedureEvent[];
+  edits: EditEntry[];
+  status: 'draft' | 'signed';
+  signedBy: string | null;
+  signedAt: string | null;
+  prevHash: string | null;
+  hash: string | null;
+  /** Signer device public key (base64url). Covered by `hash`. Absent on records signed before device keys existed. */
+  deviceKey?: string;
+  /** ECDSA signature of `hash` by `deviceKey` (base64url). Not covered by `hash`. */
+  signature?: string;
+}

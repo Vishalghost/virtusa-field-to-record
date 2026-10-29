@@ -17,6 +17,8 @@ export interface SpeechInfo {
   startedAt?: number;
   /** Whisper segment timings, for per-item spoken-at times. */
   segments?: AsrSegment[];
+  /** Engine id, kept on the record so an auditor can see whether audio left the device. */
+  engine?: string;
 }
 
 const hhmm = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -69,6 +71,7 @@ export function createDraft(transcript: string, source: 'voice' | 'text', incide
     // Event times are "HH:MM" on this date, so use when speaking started, not when extraction ran.
     recordedAt: (speech?.startedAt ? new Date(speech.startedAt) : now).toISOString(),
     transcript,
+    ...(speech?.engine ? { speechEngine: speech.engine } : {}),
     ...(repairs.length ? { rawTranscript: speech!.rawTranscript, speechRepairs: repairs } : {}),
     medications,
     procedures,

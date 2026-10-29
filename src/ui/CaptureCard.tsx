@@ -2,15 +2,19 @@ import { useRef, useState } from 'preact/hooks';
 import samples from '../../data/synthetic/dictations.json';
 import testLines from '../../data/real/script.json';
 import { MODELS, transcribe } from '../asr/asrClient';
+import { CHROME_LANG, startChromeSpeech, type ChromeMode, type ChromeSession } from '../asr/chromeSpeech';
 import { repairTranscript } from '../asr/repair';
+import type { AsrSegment } from '../asr/timing';
 import { decodeTo16kMono, startRecording, type Recording } from '../capture/recorder';
 import { encodeWav } from '../capture/wav';
 import type { SpeechInfo } from '../record/record';
 import { download } from './download';
-import type { ModelKey } from './OfflineCard';
+import type { Engine, ModelKey } from './OfflineCard';
 
 interface Props {
   model: ModelKey;
+  engine: Engine;
+  chromeMode: ChromeMode;
   onModelUsed: () => void;
   /** `handsFree`: the medic never looked at the text, so the app should read the result back. */
   onExtract: (transcript: string, source: 'voice' | 'text', speech?: SpeechInfo, handsFree?: boolean) => void;
@@ -19,41 +23,78 @@ interface Props {
 const loadFlag = (k: string, dflt: boolean) => { try { const v = localStorage.getItem(k); return v === null ? dflt : v === '1'; } catch { return dflt; } };
 const saveFlag = (k: string, v: boolean) => { try { localStorage.setItem(k, v ? '1' : '0'); } catch { /* storage unavailable */ } };
 
-export function CaptureCard({ model, onModelUsed, onExtract }: Props) {
+export function CaptureCard({ model, engine, chromeMode, onModelUsed, onExtract }: Props) {
   const [text, setText] = useState('');
   const [source, setSource] = useState<'voice' | 'text'>('text');
   const [status, setStatus] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
   const [handsFree, setHandsFree] = useState(() => loadFlag('ftr.handsFree', true));
   const rec = useRef<Recording | null>(null);
+  const chromeRec = useRef<ChromeSession | null>(null);
   const recStartedAt = useRef(0);
   // Speech output + repairs for the text currently in the box (dropped if the text is edited).
   const speech = useRef<(SpeechInfo & { text: string }) | null>(null);
 
-  /** `startedAt`: device clock (epoch ms) when this audio began, for stamping item times. */
+  /**
+   * Shared by both engines: repair, then either extract straight away (hands-free) or
+   * put the text in the box for checking. `startedAt` is the device clock when speech began.
+   */
+  const handleHeard = (heard: string, startedAt: number, segments: AsrSegment[], engineId: string, timing: string) => {
+    if (!heard.trim()) {
+      setStatus('Nothing was heard. Check the microphone and try again.');
+      return;
+    }
+    const fixed = repairTranscript(heard);
+    const info: SpeechInfo = { rawTranscript: heard, repairs: fixed.repairs, startedAt, segments, engine: engineId };
+    const fixNote = fixed.repairs.length ? ` Speech fix-ups: ${fixed.repairs.map((r) => `"${r.heard}" → "${r.readAs}"`).join(', ')}.` : '';
+    if (handsFree) {
+      setStatus(null);
+      onExtract(fixed.text, 'voice', info, true);
+      return;
+    }
+    speech.current = text.trim() ? null : { ...info, text: fixed.text };
+    setText((prev) => (prev ? `${prev} ${fixed.text}` : fixed.text));
+    setSource('voice');
+    setStatus(`${timing}${fixNote} Check the text, then extract.`);
+  };
+
+  /** Whisper path: transcribe recorded audio on the device. */
   const runAsr = async (audio: Float32Array, startedAt: number) => {
     setStatus(`Transcribing ${(audio.length / 16000).toFixed(1)} s of audio on-device…`);
     try {
       const { text: heard, ms, segments } = await transcribe(MODELS[model], audio, () => setStatus('Loading speech model…'));
       onModelUsed();
-      const fixed = repairTranscript(heard);
-      const info: SpeechInfo = { rawTranscript: heard, repairs: fixed.repairs, startedAt, segments };
-      const fixNote = fixed.repairs.length ? ` Speech fix-ups: ${fixed.repairs.map((r) => `"${r.heard}" → "${r.readAs}"`).join(', ')}.` : '';
-      if (handsFree) {
-        setStatus(null);
-        onExtract(fixed.text, 'voice', info, true);
-        return;
-      }
-      speech.current = text.trim() ? null : { ...info, text: fixed.text };
-      setText((prev) => (prev ? `${prev} ${fixed.text}` : fixed.text));
-      setSource('voice');
-      setStatus(`Transcribed in ${(ms / 1000).toFixed(1)} s.${fixNote} Check the text, then extract.`);
+      handleHeard(heard, startedAt, segments, `whisper:${model}.en`, `Transcribed in ${(ms / 1000).toFixed(1)} s.`);
     } catch (e) {
       setStatus(`Transcription failed: ${e instanceof Error ? e.message : e}`);
     }
   };
 
+  /** Chrome path: Chrome transcribes while the medic speaks; Stop returns the text. */
+  const toggleChrome = async () => {
+    if (recording) {
+      setRecording(false);
+      const r = await chromeRec.current!.stop();
+      chromeRec.current = null;
+      const engineId = `chrome-${chromeMode === 'on-device' ? 'on-device' : 'online'}:${CHROME_LANG}`;
+      handleHeard(r.text, r.startedAt, r.segments, engineId, 'Recognized by Chrome.');
+      return;
+    }
+    try {
+      chromeRec.current = startChromeSpeech(
+        chromeMode,
+        (live) => setStatus(live ? `Hearing: “${live}”` : 'Listening…'),
+        (msg) => { chromeRec.current?.cancel(); chromeRec.current = null; setRecording(false); setStatus(msg); },
+      );
+      setRecording(true);
+      setStatus(chromeMode === 'on-device' ? 'Listening on this device… tap Stop when done.' : 'Listening (online: audio goes to Google)… tap Stop when done.');
+    } catch (e) {
+      setStatus(`Chrome speech unavailable: ${e instanceof Error ? e.message : e}`);
+    }
+  };
+
   const toggleMic = async () => {
+    if (engine === 'chrome') return toggleChrome();
     if (recording) {
       setRecording(false);
       const audio = await rec.current!.stop();

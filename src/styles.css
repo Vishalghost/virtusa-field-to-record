@@ -1,14 +1,20 @@
+/* Light theme. Text colours all meet WCAG AA (>= 4.5:1) on white, so the app stays
+   readable on a phone screen outdoors. */
 :root {
-  --bg: #0f172a;
-  --card: #1e293b;
-  --line: #334155;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --accent: #38bdf8;
-  --ok: #4ade80;
-  --warn: #fbbf24;
-  --bad: #f87171;
-  color-scheme: dark;
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --field: #ffffff;
+  --sunken: #f8fafc;
+  --line: #d6dce4;
+  --text: #0f172a;
+  --muted: #556070;
+  --accent: #0369a1;
+  --ok: #15803d;
+  --warn: #b45309;
+  --bad: #b91c1c;
+  --button: #eef1f5;
+  --button-line: #c9d1db;
+  color-scheme: light;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 system-ui, -apple-system, Segoe UI, sans-serif; }
@@ -17,7 +23,7 @@ header h1 { margin: 0; font-size: 1.5rem; }
 header p { margin: 4px 0 12px; color: var(--muted); }
 h2 { font-size: 1.1rem; margin: 0 0 12px; }
 h3 { font-size: 1rem; margin: 18px 0 8px; color: var(--muted); }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 12px 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 12px 0; box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .row.end { justify-content: flex-end; margin-top: 8px; }
 .row.spread { justify-content: space-between; }
@@ -25,45 +31,58 @@ h3 { font-size: 1rem; margin: 18px 0 8px; color: var(--muted); }
 .status { color: var(--accent); }
 .error { color: var(--bad); }
 .ok-text { color: var(--ok); }
+.warn-text { color: var(--warn); }
 label.inline { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
 
 button, .button, select, input, textarea {
-  font: inherit; color: var(--text); background: #0b1222; border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; min-height: 44px;
+  font: inherit; color: var(--text); background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; min-height: 44px;
 }
-button, .button { cursor: pointer; background: #334155; border-color: #475569; }
+button, .button { cursor: pointer; background: var(--button); border-color: var(--button-line); }
+button:hover:not(:disabled), .button:hover { filter: brightness(0.96); }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
-button.primary { background: #0284c7; border-color: #0284c7; font-weight: 600; }
-button.danger { background: #b91c1c; border-color: #b91c1c; font-weight: 600; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+button.danger { background: var(--bad); border-color: var(--bad); color: #fff; font-weight: 600; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 button.big { min-width: 150px; font-size: 1.1rem; }
 button.ghost { background: transparent; }
 button.small { min-height: 36px; padding: 6px 10px; font-size: 0.9rem; }
 textarea { width: 100%; margin-top: 10px; resize: vertical; }
+select, input { max-width: 100%; }
+/* Selects size to their longest option ("mcg/kg/min", "Inhaled (unusual)"); cap them so
+   the review table fits without hiding the Confirm buttons off the right edge. */
+td input, td select { padding-left: 8px; padding-right: 6px; }
+td select { max-width: 7.5em; }
+td:first-child select { max-width: 11em; }
+label.inline { max-width: 100%; min-width: 0; flex-wrap: wrap; }
+label.inline select { min-width: 0; max-width: 100%; }
 input.num { width: 5.5em; }
 input[type='time'] { width: 7.5em; }
-td input:not(.num):not([type='time']) { width: 9em; }
+td input:not(.num):not([type='time']) { width: 7em; }
+td input[type='time'] { width: 7em; }
 
 .badge { padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
-.badge.ok { background: #14532d; color: var(--ok); }
-.badge.warn { background: #78350f; color: var(--warn); }
-.badge.muted { background: #334155; color: var(--muted); }
+.badge.ok { background: #dcfce7; color: #166534; }
+.badge.warn { background: #fef3c7; color: #92400e; }
+.badge.muted { background: var(--button); color: var(--muted); }
 .progress { display: flex; gap: 8px; align-items: center; font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
 .progress progress { flex: 1; }
 
-.transcript { margin: 8px 0; padding: 12px; background: #0b1222; border-left: 3px solid var(--accent); border-radius: 6px; white-space: pre-wrap; }
+.transcript { margin: 8px 0; padding: 12px; background: var(--sunken); border-left: 3px solid var(--accent); border-radius: 6px; white-space: pre-wrap; }
 mark { background: none; color: inherit; border-bottom: 2px solid; padding: 0 1px; }
 mark.medication { border-color: var(--accent); }
-mark.procedure { border-color: #c084fc; }
-mark.active { background: #fde04755; }
+mark.procedure { border-color: #7c3aed; }
+mark.active { background: #fde68a; }
 
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
 th, td { border-bottom: 1px solid var(--line); padding: 6px; text-align: left; vertical-align: top; }
-th { color: var(--muted); font-weight: 500; }
+th { color: var(--muted); font-weight: 600; background: var(--sunken); }
 tr.confirmed td:first-child { box-shadow: inset 3px 0 var(--ok); }
-td.actions { white-space: nowrap; }
+td.actions { white-space: nowrap; padding-right: 2px; }
+td.actions button + button { margin-left: 4px; }
 .code { display: block; color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
 .code.warn { color: var(--warn); }
-.flags { list-style: none; margin: 0; padding: 0; font-size: 0.8rem; max-width: 260px; }
+.flags { list-style: none; margin: 0; padding: 0; font-size: 0.8rem; min-width: 150px; max-width: 240px; }
 .flags li::before { content: '● '; }
 .flags .block { color: var(--bad); }
 .flags .warn { color: var(--warn); }
@@ -75,11 +94,11 @@ code { font-size: 0.8rem; }
 a.button { display: inline-flex; align-items: center; text-decoration: none; }
 a.button.small { min-height: 36px; padding: 6px 10px; font-size: 0.9rem; }
 
-.send { flex-basis: 100%; background: #0b1222; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.send { flex-basis: 100%; background: var(--sunken); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
 .frames { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 8px; }
 .frames li { display: flex; gap: 12px; align-items: flex-start; padding: 8px; border: 1px solid var(--line); border-radius: 8px; }
 .frames li > div { min-width: 0; flex: 1; }
-.frames li img { background: #fff; border-radius: 4px; flex-shrink: 0; }
+.frames li img { background: #fff; border: 1px solid var(--line); border-radius: 4px; flex-shrink: 0; }
 .frames li.lost { opacity: 0.4; border-style: dashed; }
 .frame-text { display: block; margin-top: 4px; word-break: break-all; color: var(--muted); }
 .received { margin-top: 8px; }

@@ -98,6 +98,8 @@ export interface ClinicalRecord {
   recordedAt: string;
   /** Verbatim transcript; never modified after extraction. */
   transcript: string;
+  /** Which speech engine produced the transcript, e.g. "whisper:tiny.en", "chrome-on-device:en-IN", "chrome-online:en-IN" (audio went to Google). */
+  speechEngine?: string;
   /** Speech model output before mishearing repairs, if any were applied (evidence of what was heard). */
   rawTranscript?: string;
   /** Repairs applied to `rawTranscript` to produce `transcript`; spans index `transcript`. */

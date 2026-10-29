@@ -1,4 +1,5 @@
 import type { AsrRequest, AsrResponse } from './asr.worker';
+import type { AsrSegment } from './timing';
 
 export const MODELS = {
   tiny: 'onnx-community/whisper-tiny.en',
@@ -30,8 +31,8 @@ export async function prepareModel(model: string, onProgress?: Progress): Promis
   await call({ type: 'load', model }, onProgress);
 }
 
-export async function transcribe(model: string, audio: Float32Array, onProgress?: Progress): Promise<{ text: string; ms: number }> {
+export async function transcribe(model: string, audio: Float32Array, onProgress?: Progress): Promise<{ text: string; ms: number; segments: AsrSegment[] }> {
   const res = await call({ type: 'transcribe', model, audio }, onProgress);
   if (res.type !== 'result') throw new Error('Unexpected ASR response');
-  return { text: res.text, ms: res.ms };
+  return { text: res.text, ms: res.ms, segments: res.segments };
 }

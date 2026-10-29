@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { keyFingerprint } from '../record/signing';
-import { ROUTE_NAMES } from '../render/format';
+import type { TimeSource } from '../record/schema';
+import { ROUTE_NAMES, TIME_LABEL } from '../render/format';
 import { deviceKey } from '../store/db';
 import { decodeMessage, type DecodedMessage } from '../transport/compact';
 import { reassemble } from '../transport/frames';
@@ -11,7 +12,8 @@ interface Props {
 }
 
 const hhmm = (iso: string) => new Date(iso).toTimeString().slice(0, 5);
-const when = (t: string | null, recordedAt: string) => t ?? `${hhmm(recordedAt)} (capture)`;
+const when = (t: string | null, source: TimeSource | undefined, recordedAt: string) =>
+  t ? t + TIME_LABEL[source ?? 'dictated'] : `${hhmm(recordedAt)} (capture)`;
 
 /** The doctor's side: paste or receive frames, see what is missing, verify, read the record. */
 export function ReceiveCard({ inbox, onInbox }: Props) {
@@ -63,14 +65,14 @@ export function ReceiveCard({ inbox, onInbox }: Props) {
               <tbody>
                 {r.medications.map((m, i) => (
                   <tr key={i}>
-                    <td>{when(m.time, r.recordedAt)}</td><td>{m.drug ?? '— unidentified —'}</td>
+                    <td>{when(m.time, m.timeSource, r.recordedAt)}</td><td>{m.drug ?? '— unidentified —'}</td>
                     <td>{m.dose !== null ? `${m.dose} ${m.unit ?? '?'}` : '—'}</td><td>{m.route ? ROUTE_NAMES[m.route] ?? m.route : '—'}</td>
                     <td>{m.site ?? ''}</td><td>{m.confirmed ? 'yes' : 'no'}</td>
                   </tr>
                 ))}
                 {r.procedures.map((p, i) => (
                   <tr key={`p${i}`}>
-                    <td>{when(p.time, r.recordedAt)}</td><td colSpan={2}>{p.procedure}{p.detail ? ` (${p.detail})` : ''}</td>
+                    <td>{when(p.time, p.timeSource, r.recordedAt)}</td><td colSpan={2}>{p.procedure}{p.detail ? ` (${p.detail})` : ''}</td>
                     <td>—</td><td>{p.site ?? ''}</td><td>{p.confirmed ? 'yes' : 'no'}</td>
                   </tr>
                 ))}

@@ -1,17 +1,48 @@
 // Record lifecycle: create a draft from a transcript, apply reviewer edits (each one
 // logged), and amend a signed record as a new linked version.
 
-import type { SpeechRepair } from '../asr/repair';
+import { toRawOffset, type SpeechRepair } from '../asr/repair';
+import { secondsAt, type AsrSegment } from '../asr/timing';
 import { processTranscript } from '../nlp/pipeline';
 import { drugByName } from '../nlp/lexicon';
 import { medicationFlags, procedureFlags, isBlocked } from '../nlp/review';
-import type { ClinicalRecord, MedicationEvent, ProcedureEvent } from './schema';
+import type { ClinicalRecord, MedicationEvent, ProcedureEvent, TimeSource } from './schema';
 
 const uuid = () => crypto.randomUUID();
 
 export interface SpeechInfo {
   rawTranscript: string;
   repairs: SpeechRepair[];
+  /** Device clock (epoch ms) when the audio started. */
+  startedAt?: number;
+  /** Whisper segment timings, for per-item spoken-at times. */
+  segments?: AsrSegment[];
+}
+
+const hhmm = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+
+/**
+ * Give every event a time without anyone typing one. A time said aloud wins; otherwise
+ * the device clock at the moment the item was spoken (voice) or the note was entered
+ * (typed). The source is recorded so a clock stamp is never mistaken for a stated time.
+ */
+function stampTimes(meds: MedicationEvent[], procs: ProcedureEvent[], now: Date, speech?: SpeechInfo) {
+  const clockFor = (ev: MedicationEvent | ProcedureEvent): { at: Date; source: TimeSource } => {
+    if (!speech?.startedAt) return { at: now, source: 'entered' };
+    const offset = toRawOffset(ev.sourceSpans[0]?.start ?? 0, speech.repairs);
+    const seconds = speech.segments?.length ? secondsAt(offset, speech.rawTranscript, speech.segments) : 0;
+    return { at: new Date(speech.startedAt + seconds * 1000), source: 'spoken' };
+  };
+  for (const m of meds) {
+    if (m.administeredAt) m.timeSource = 'dictated';
+    else { const c = clockFor(m); m.administeredAt = hhmm(c.at); m.timeSource = c.source; }
+    m.flags = medicationFlags(m);
+  }
+  for (const p of procs) {
+    if (p.performedAt) p.timeSource = 'dictated';
+    else { const c = clockFor(p); p.performedAt = hhmm(c.at); p.timeSource = c.source; }
+    p.flags = procedureFlags(p);
+  }
 }
 
 /** Any event whose source text was produced by a speech repair must be confirmed by a human. */
@@ -27,6 +58,7 @@ function flagRepaired(events: (MedicationEvent | ProcedureEvent)[], repairs: Spe
 export function createDraft(transcript: string, source: 'voice' | 'text', incidentId: string, now = new Date(), speech?: SpeechInfo): ClinicalRecord {
   const { medications, procedures } = processTranscript(transcript);
   const repairs = speech?.repairs ?? [];
+  stampTimes(medications, procedures, now, speech);
   flagRepaired([...medications, ...procedures], repairs);
   return {
     id: uuid(),
@@ -34,7 +66,8 @@ export function createDraft(transcript: string, source: 'voice' | 'text', incide
     supersedes: null,
     incidentId,
     source,
-    recordedAt: now.toISOString(),
+    // Event times are "HH:MM" on this date, so use when speaking started, not when extraction ran.
+    recordedAt: (speech?.startedAt ? new Date(speech.startedAt) : now).toISOString(),
     transcript,
     ...(repairs.length ? { rawTranscript: speech!.rawTranscript, speechRepairs: repairs } : {}),
     medications,
@@ -68,6 +101,10 @@ export function editMedication(r: ClinicalRecord, eventId: string, field: MedFie
     ev.rxnorm = typeof value === 'string' ? (drugByName(value)?.rxnorm ?? null) : null;
     ev.confidence = 1; // a human typed it
   }
+  if (field === 'administeredAt') {
+    if (value === null) delete ev.timeSource;
+    else ev.timeSource = 'edited';
+  }
   ev.confirmed = true;
   ev.flags = medicationFlags(ev);
   next.edits.push({ at: now.toISOString(), eventId, field, from, to: value });
@@ -82,6 +119,10 @@ export function editProcedure(r: ClinicalRecord, eventId: string, field: ProcFie
   const from = ev[field];
   if (from === value) return r;
   (ev as unknown as Record<string, unknown>)[field] = value;
+  if (field === 'performedAt') {
+    if (value === null) delete ev.timeSource;
+    else ev.timeSource = 'edited';
+  }
   ev.confirmed = true;
   ev.flags = procedureFlags(ev);
   next.edits.push({ at: now.toISOString(), eventId, field, from, to: value });

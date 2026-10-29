@@ -32,6 +32,16 @@ export interface ReviewFlag {
   reason: string;
 }
 
+/**
+ * Where an event's time came from. Only 'dictated' is a time someone stated; the clock
+ * kinds record when the note was made, which can be later than the actual administration.
+ *   dictated: said aloud ("at 10:30")
+ *   spoken:   device clock at the moment the item was spoken (recording start + offset)
+ *   entered:  device clock when a typed note was extracted
+ *   edited:   set by hand during review
+ */
+export type TimeSource = 'dictated' | 'spoken' | 'entered' | 'edited';
+
 export interface MedicationEvent {
   kind: 'medication';
   id: string;
@@ -43,8 +53,9 @@ export interface MedicationEvent {
   unit: string | null;
   route: string | null;
   site: string | null;
-  /** Time stated in the dictation ("HH:MM"), or null if none was said. Never guessed. */
+  /** "HH:MM". From the dictation if stated, else stamped from the device clock (see timeSource). */
   administeredAt: string | null;
+  timeSource?: TimeSource;
   confidence: number;
   sourceSpans: Span[];
   flags: ReviewFlag[];
@@ -59,6 +70,7 @@ export interface ProcedureEvent {
   detail: string | null;
   site: string | null;
   performedAt: string | null;
+  timeSource?: TimeSource;
   confidence: number;
   sourceSpans: Span[];
   flags: ReviewFlag[];

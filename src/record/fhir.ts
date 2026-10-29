@@ -3,7 +3,7 @@
 // Simplifications: no Patient/Encounter resources (synthetic data only), procedure
 // and route codes are local code systems, not SNOMED CT.
 
-import type { ClinicalRecord, MedicationEvent, ProcedureEvent } from './schema';
+import type { ClinicalRecord, MedicationEvent, ProcedureEvent, TimeSource } from './schema';
 
 const RXNORM = 'http://www.nlm.nih.gov/research/umls/rxnorm';
 const UCUM = 'http://unitsofmeasure.org';
@@ -20,15 +20,17 @@ const ROUTE_TEXT: Record<string, string> = {
 };
 
 /**
- * Combine the capture date with a dictated "HH:MM". If no time was dictated we
- * fall back to the capture timestamp and say so explicitly via `timeSource`.
+ * Combine the capture date with the event's "HH:MM". Every output carries where the
+ * time came from (`timeSource`), so a device-clock stamp is never read as a stated time.
+ * No time at all falls back to the capture timestamp, labelled 'capture'.
  */
-export function eventTime(recordedAt: string, hhmm: string | null): { when: string; timeSource: 'dictated' | 'capture' } {
+export function eventTime(recordedAt: string, hhmm: string | null, source?: TimeSource): { when: string; timeSource: TimeSource | 'capture' } {
   if (!hhmm) return { when: recordedAt, timeSource: 'capture' };
   const d = new Date(recordedAt);
   const [h, m] = hhmm.split(':').map(Number);
   d.setHours(h, m, 0, 0);
-  return { when: d.toISOString(), timeSource: 'dictated' };
+  // Records from before timeSource existed only had stated times in this field.
+  return { when: d.toISOString(), timeSource: source ?? 'dictated' };
 }
 
 const ext = (name: string, value: string | boolean) => ({
@@ -37,7 +39,7 @@ const ext = (name: string, value: string | boolean) => ({
 });
 
 function medicationResource(r: ClinicalRecord, m: MedicationEvent) {
-  const t = eventTime(r.recordedAt, m.administeredAt);
+  const t = eventTime(r.recordedAt, m.administeredAt, m.timeSource);
   return {
     resourceType: 'MedicationAdministration',
     id: m.id,
@@ -58,7 +60,7 @@ function medicationResource(r: ClinicalRecord, m: MedicationEvent) {
 }
 
 function procedureResource(r: ClinicalRecord, p: ProcedureEvent) {
-  const t = eventTime(r.recordedAt, p.performedAt);
+  const t = eventTime(r.recordedAt, p.performedAt, p.timeSource);
   return {
     resourceType: 'Procedure',
     id: p.id,

@@ -15,7 +15,7 @@
 // a dose in transit. This signature covers exactly the bytes that were sent.
 
 import { PROCEDURES } from '../nlp/lexicon';
-import type { ClinicalRecord } from '../record/schema';
+import type { ClinicalRecord, TimeSource } from '../record/schema';
 import { fromB64url, keyFingerprint, signBytes, toB64url, verifyBytes, SIGNATURE_BYTES, type Bytes, type DeviceKey } from '../record/signing';
 
 const PUBLIC_KEY_BYTES = 65;
@@ -26,8 +26,9 @@ export interface CompactMed {
   unit: string | null;
   route: string | null;
   site: string | null;
-  /** Dictated "HH:MM", or null (receiver shows capture time, labelled). */
+  /** "HH:MM", or null (receiver shows capture time, labelled). */
   time: string | null;
+  timeSource?: TimeSource;
   confirmed: boolean;
 }
 
@@ -37,8 +38,13 @@ export interface CompactProc {
   detail: string | null;
   site: string | null;
   time: string | null;
+  timeSource?: TimeSource;
   confirmed: boolean;
 }
+
+// One letter per time source on the wire.
+const SRC_CODE: Record<TimeSource, string> = { dictated: 'd', spoken: 's', entered: 'e', edited: 'x' };
+const SRC_FROM = Object.fromEntries(Object.entries(SRC_CODE).map(([k, v]) => [v, k as TimeSource])) as Record<string, TimeSource>;
 
 export interface CompactRecord {
   incidentId: string;
@@ -67,10 +73,10 @@ export function toCompact(r: ClinicalRecord, deviceKey: string): CompactRecord {
     hash: r.hash,
     deviceKey,
     medications: r.medications.map((m) => ({
-      drug: m.drug, dose: m.dose, unit: m.unit, route: m.route, site: m.site, time: m.administeredAt, confirmed: m.confirmed,
+      drug: m.drug, dose: m.dose, unit: m.unit, route: m.route, site: m.site, time: m.administeredAt, timeSource: m.timeSource, confirmed: m.confirmed,
     })),
     procedures: r.procedures.map((p) => ({
-      procedure: p.procedure, code: p.code, detail: p.detail, site: p.site, time: p.performedAt, confirmed: p.confirmed,
+      procedure: p.procedure, code: p.code, detail: p.detail, site: p.site, time: p.performedAt, timeSource: p.timeSource, confirmed: p.confirmed,
     })),
   };
 }
@@ -93,26 +99,28 @@ function pack(c: CompactRecord): unknown {
   return {
     i: c.incidentId, r: uuidToB64(c.recordId), v: c.version, b: c.signedBy, s: toEpoch(c.signedAt), c: toEpoch(c.recordedAt),
     h: btoa(String.fromCharCode(...hexToBytes(c.hash))),
-    m: c.medications.map((m) => [m.drug, m.dose, m.unit, m.route, m.site, m.time, m.confirmed ? 1 : 0]),
+    m: c.medications.map((m) => [m.drug, m.dose, m.unit, m.route, m.site, m.time, m.confirmed ? 1 : 0, m.timeSource ? SRC_CODE[m.timeSource] : '']),
     // Procedure names are looked up from the shared lexicon by code on the receiver.
-    p: c.procedures.map((p) => [PROC_NAME.get(p.code) === p.procedure ? p.code : `${p.code}|${p.procedure}`, p.detail, p.site, p.time, p.confirmed ? 1 : 0]),
+    p: c.procedures.map((p) => [PROC_NAME.get(p.code) === p.procedure ? p.code : `${p.code}|${p.procedure}`, p.detail, p.site, p.time, p.confirmed ? 1 : 0, p.timeSource ? SRC_CODE[p.timeSource] : '']),
   };
 }
 
 type Packed = {
   i: string; r: string; v: number; b: string; s: number; c: number; h: string;
-  m: [string | null, number | null, string | null, string | null, string | null, string | null, number][];
-  p: [string, string | null, string | null, string | null, number][];
+  m: [string | null, number | null, string | null, string | null, string | null, string | null, number, string?][];
+  p: [string, string | null, string | null, string | null, number, string?][];
 };
 
 function unpack(w: Packed, deviceKey: string): CompactRecord {
   return {
     incidentId: w.i, recordId: b64ToUuid(w.r), version: w.v, signedBy: w.b, signedAt: fromEpoch(w.s), recordedAt: fromEpoch(w.c),
     hash: bytesToHex(Uint8Array.from(atob(w.h), (ch) => ch.charCodeAt(0))), deviceKey,
-    medications: w.m.map(([drug, dose, unit, route, site, time, ok]) => ({ drug, dose, unit, route, site, time, confirmed: ok === 1 })),
-    procedures: w.p.map(([codeName, detail, site, time, ok]) => {
+    medications: w.m.map(([drug, dose, unit, route, site, time, ok, src]) => ({
+      drug, dose, unit, route, site, time, timeSource: SRC_FROM[src ?? ''], confirmed: ok === 1,
+    })),
+    procedures: w.p.map(([codeName, detail, site, time, ok, src]) => {
       const [code, name] = codeName.split('|');
-      return { procedure: name ?? PROC_NAME.get(code) ?? code, code, detail, site, time, confirmed: ok === 1 };
+      return { procedure: name ?? PROC_NAME.get(code) ?? code, code, detail, site, time, timeSource: SRC_FROM[src ?? ''], confirmed: ok === 1 };
     }),
   };
 }

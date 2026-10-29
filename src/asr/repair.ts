@@ -41,6 +41,17 @@ const RULES: [RegExp, string][] = [
   [/\bpot\s?ten\b/gi, 'potten'],
 ];
 
+/** Map an offset in the repaired text back to the raw ASR text (repairs sorted by start). */
+export function toRawOffset(pos: number, repairs: SpeechRepair[]): number {
+  let delta = 0;
+  for (const r of repairs) {
+    if (pos >= r.end) delta += r.heard.length - r.readAs.length;
+    else if (pos >= r.start) return r.start + delta;
+    else break;
+  }
+  return pos + delta;
+}
+
 export function repairTranscript(raw: string): { text: string; repairs: SpeechRepair[] } {
   // Collect matches against the raw text; earlier rules win on overlap.
   const hits: { start: number; end: number; to: string }[] = [];

@@ -15,12 +15,12 @@ describe('document generation', () => {
     expect(html).toContain('DRAFT — NOT SIGNED');
   });
 
-  it('shows hash and signer once signed, and marks non-dictated times', async () => {
+  it('shows hash and signer once signed, and labels clock-stamped times', async () => {
     const r = await signRecord(createDraft('Morphine 4 mg IV', 'text', 'INC-9', NOW), 'EMT-7', null, NOW);
     const html = renderHtml(r);
     expect(html).toContain(r.hash!);
     expect(html).toContain('EMT-7');
-    expect(html).toMatch(/\d\d:\d\d \(capture\)/);
+    expect(html).toMatch(/\d\d:\d\d \(at entry\)/);
   });
 
   it('produces a PDF', async () => {

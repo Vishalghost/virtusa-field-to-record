@@ -14,6 +14,7 @@ import { join, resolve } from 'node:path';
 const BROWSER = process.argv[2] ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const APP = 'http://localhost:4173/';
 const WAV = resolve('data/synthetic/audio/syn-024.wav');
+const WAV_NO_TIME = resolve('data/synthetic/audio/syn-notime.wav');
 const PORT = 9333;
 
 const proc = spawn(BROWSER, ['--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${mkdtempSync(join(tmpdir(), 'ftr-'))}`, '--no-first-run', '--use-fake-ui-for-media-stream', 'about:blank'], { stdio: 'ignore' });
@@ -127,6 +128,19 @@ try {
   const transcript = await evaluate(`document.querySelector('blockquote.transcript')?.textContent ?? document.querySelector('.status').textContent`);
   const drugs = await evaluate(`[...document.querySelectorAll('tbody tr select')].filter((s, i) => i % 3 === 0).map((s) => s.value).join(',')`);
   check('offline hands-free: speech -> review, no typing', /aspirin/i.test(transcript) && drugs.includes('aspirin'), `"${transcript}" -> ${drugs}`);
+
+  // 5. no time said: every item gets the device clock time, labelled, without typing
+  await evaluate(`$btn('Discard draft').click(); true`);
+  await waitFor(`!!document.querySelector('input[type=file]')`, 'capture card back');
+  const before = Date.now();
+  const doc2 = await send('DOM.getDocument');
+  const file2 = await send('DOM.querySelector', { nodeId: doc2.root.nodeId, selector: 'input[type=file]' });
+  await send('DOM.setFileInputFiles', { nodeId: file2.nodeId, files: [WAV_NO_TIME] });
+  await waitFor(`!!document.querySelector('blockquote.transcript')`, 'no-time dictation in review', 180000);
+  const times = await evaluate(`[...document.querySelectorAll('tbody input[type=time]')].map((i) => i.value + ' ' + (i.nextElementSibling?.textContent ?? ''))`);
+  const hhmm = (ms) => new Date(ms).toTimeString().slice(0, 5);
+  const okClock = times.length >= 2 && times.every((t) => t.endsWith('auto (clock)') && t.slice(0, 5) >= hhmm(before - 60000) && t.slice(0, 5) <= hhmm(Date.now()));
+  check('times filled from device clock, labelled auto', okClock, times.join(' | '));
 } catch (e) {
   check('e2e run', false, e.message);
 } finally {

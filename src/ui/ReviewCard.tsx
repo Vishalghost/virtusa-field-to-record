@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import { DRUGS, drugByName } from '../nlp/lexicon';
 import { UNITS } from '../nlp/extract';
 import { addMedication, confirmEvent, editMedication, editProcedure, removeEvent, signingBlockers } from '../record/record';
-import type { ClinicalRecord, ClinicalEvent, ReviewFlag, Span } from '../record/schema';
+import type { ClinicalRecord, ClinicalEvent, ReviewFlag, Span, TimeSource } from '../record/schema';
 import { ROUTE_NAMES } from '../render/format';
 import { readbackText, speakLocally, speechAvailable } from './readback';
 
@@ -31,6 +31,15 @@ function Transcript({ text, events, active }: { text: string; events: ClinicalEv
   parts.push(<span key="tail">{text.slice(pos)}</span>);
   return <blockquote class="transcript">{parts}</blockquote>;
 }
+
+const TIME_TITLE: Record<TimeSource, string> = {
+  dictated: 'Time said in the dictation',
+  spoken: 'Device clock when this was spoken. Change it if it was given earlier.',
+  entered: 'Device clock when the note was entered. Change it if it was given earlier.',
+  edited: 'Set by hand',
+};
+const TimeTag = ({ source }: { source?: TimeSource }) =>
+  source ? <small class="code" title={TIME_TITLE[source]}>{source === 'dictated' ? 'said' : source === 'edited' ? 'edited' : 'auto (clock)'}</small> : null;
 
 const Flags = ({ flags, confirmed }: { flags: ReviewFlag[]; confirmed: boolean }) => (
   <ul class="flags">
@@ -99,7 +108,10 @@ export function ReviewCard({ draft, onChange, onSign, onDiscard }: Props) {
                   </select>
                 </td>
                 <td><input value={m.site ?? ''} onChange={(e) => onChange(editMedication(draft, m.id, 'site', nul(val(e))))} /></td>
-                <td><input type="time" value={m.administeredAt ?? ''} onChange={(e) => onChange(editMedication(draft, m.id, 'administeredAt', nul(val(e))))} /></td>
+                <td>
+                  <input type="time" value={m.administeredAt ?? ''} onChange={(e) => onChange(editMedication(draft, m.id, 'administeredAt', nul(val(e))))} />
+                  <TimeTag source={m.timeSource} />
+                </td>
                 <td><Flags flags={m.flags} confirmed={m.confirmed} /></td>
                 {actions(m.id, m.confirmed)}
               </tr>
@@ -120,7 +132,10 @@ export function ReviewCard({ draft, onChange, onSign, onDiscard }: Props) {
                   <td>{p.procedure}</td>
                   <td><input value={p.detail ?? ''} onChange={(e) => onChange(editProcedure(draft, p.id, 'detail', nul(val(e))))} /></td>
                   <td><input value={p.site ?? ''} onChange={(e) => onChange(editProcedure(draft, p.id, 'site', nul(val(e))))} /></td>
-                  <td><input type="time" value={p.performedAt ?? ''} onChange={(e) => onChange(editProcedure(draft, p.id, 'performedAt', nul(val(e))))} /></td>
+                  <td>
+                    <input type="time" value={p.performedAt ?? ''} onChange={(e) => onChange(editProcedure(draft, p.id, 'performedAt', nul(val(e))))} />
+                    <TimeTag source={p.timeSource} />
+                  </td>
                   <td><Flags flags={p.flags} confirmed={p.confirmed} /></td>
                   {actions(p.id, p.confirmed)}
                 </tr>

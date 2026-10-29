@@ -26,16 +26,18 @@ export function CaptureCard({ model, onModelUsed, onExtract }: Props) {
   const [recording, setRecording] = useState(false);
   const [handsFree, setHandsFree] = useState(() => loadFlag('ftr.handsFree', true));
   const rec = useRef<Recording | null>(null);
+  const recStartedAt = useRef(0);
   // Speech output + repairs for the text currently in the box (dropped if the text is edited).
   const speech = useRef<(SpeechInfo & { text: string }) | null>(null);
 
-  const runAsr = async (audio: Float32Array) => {
+  /** `startedAt`: device clock (epoch ms) when this audio began, for stamping item times. */
+  const runAsr = async (audio: Float32Array, startedAt: number) => {
     setStatus(`Transcribing ${(audio.length / 16000).toFixed(1)} s of audio on-device…`);
     try {
-      const { text: heard, ms } = await transcribe(MODELS[model], audio, () => setStatus('Loading speech model…'));
+      const { text: heard, ms, segments } = await transcribe(MODELS[model], audio, () => setStatus('Loading speech model…'));
       onModelUsed();
       const fixed = repairTranscript(heard);
-      const info = { rawTranscript: heard, repairs: fixed.repairs };
+      const info: SpeechInfo = { rawTranscript: heard, repairs: fixed.repairs, startedAt, segments };
       const fixNote = fixed.repairs.length ? ` Speech fix-ups: ${fixed.repairs.map((r) => `"${r.heard}" → "${r.readAs}"`).join(', ')}.` : '';
       if (handsFree) {
         setStatus(null);
@@ -56,11 +58,12 @@ export function CaptureCard({ model, onModelUsed, onExtract }: Props) {
       setRecording(false);
       const audio = await rec.current!.stop();
       rec.current = null;
-      await runAsr(audio);
+      await runAsr(audio, recStartedAt.current);
       return;
     }
     try {
       rec.current = await startRecording();
+      recStartedAt.current = Date.now();
       setRecording(true);
       setStatus(handsFree ? 'Recording… tap Stop when done; the record opens for review automatically.' : 'Recording… tap again to stop.');
     } catch (e) {
@@ -71,7 +74,9 @@ export function CaptureCard({ model, onModelUsed, onExtract }: Props) {
   const onFile = async (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    await runAsr(await decodeTo16kMono(await file.arrayBuffer()));
+    const audio = await decodeTo16kMono(await file.arrayBuffer());
+    // A file has no live clock: treat it as just recorded, ending now.
+    await runAsr(audio, Date.now() - (audio.length / 16000) * 1000);
     (e.target as HTMLInputElement).value = '';
   };
 

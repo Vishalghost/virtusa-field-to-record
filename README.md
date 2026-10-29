@@ -62,7 +62,7 @@ In the app: **Prepare for offline** once (loads the model into the cache). After
 
 **Design rules**
 - **Never invent values.** Each field carries the span of transcript text it came from. Missing data stays `null` and gets flagged, never guessed.
-- **Two clocks.** `recordedAt` is the device capture time. `administeredAt` is only set from a time the medic actually said. If none was said, outputs fall back to capture time and label it (`timeSource: capture`).
+- **No typed times, and every time says where it came from.** A time said aloud ("at 10:30") is used as-is (`timeSource: dictated`). Otherwise each item is stamped with the device clock at the moment its words were spoken: recording start + Whisper segment offset (`spoken`), or when a typed note was entered (`entered`). Hand changes are `edited`. The source is shown in review ("auto (clock)"), reports ("10:42 (at speech)"), FHIR and transmitted frames, because a clock stamp is when the medic *spoke*, which can be later than when the drug was *given*.
 - **Human in the loop.** Nothing is signed until blocking flags are resolved by a person.
 
 ## Data

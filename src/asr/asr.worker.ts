@@ -2,6 +2,7 @@
 // Runs off the main thread so the UI stays responsive during transcription.
 
 import { env, pipeline, type AutomaticSpeechRecognitionPipeline } from '@huggingface/transformers';
+import type { AsrSegment } from './timing';
 
 // Everything is served by this app; never reach out to the Hugging Face hub or a CDN.
 env.allowRemoteModels = false;
@@ -17,7 +18,7 @@ export type AsrRequest = { type: 'load'; model: string } | { type: 'transcribe';
 export type AsrResponse =
   | { type: 'progress'; file: string; progress: number }
   | { type: 'ready'; model: string }
-  | { type: 'result'; text: string; ms: number }
+  | { type: 'result'; text: string; ms: number; segments: AsrSegment[] }
   | { type: 'error'; message: string };
 
 let loaded: { model: string; asr: Promise<AutomaticSpeechRecognitionPipeline> } | null = null;
@@ -48,8 +49,14 @@ self.onmessage = async (e: MessageEvent<AsrRequest>) => {
     // return_timestamps switches Whisper to long-form decoding; without it small models
     // often stop at the first long pause and silently drop the rest of the dictation.
     const out = await asr(e.data.audio, { chunk_length_s: 30, stride_length_s: 5, return_timestamps: true });
-    const text = Array.isArray(out) ? out.map((o) => o.text).join(' ') : out.text;
-    post({ type: 'result', text: text.trim(), ms: Math.round(performance.now() - t0) });
+    const outs = Array.isArray(out) ? out : [out];
+    const text = outs.map((o) => o.text).join(' ');
+    // Segment start times (seconds into the audio) let each event be stamped with the
+    // clock time its words were spoken.
+    const segments: AsrSegment[] = outs.flatMap((o) =>
+      ((o as { chunks?: { text: string; timestamp: [number, number | null] }[] }).chunks ?? []).map((c) => ({ text: c.text, start: c.timestamp[0], end: c.timestamp[1] })),
+    );
+    post({ type: 'result', text: text.trim(), ms: Math.round(performance.now() - t0), segments });
   } catch (err) {
     loaded = null;
     post({ type: 'error', message: err instanceof Error ? err.message : String(err) });

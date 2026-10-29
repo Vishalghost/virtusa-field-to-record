@@ -70,7 +70,7 @@ describe('FHIR-lite', () => {
     expect(ma.extension[0].valueString).toBe('dictated');
     const proc = b.entry[1].resource as any;
     expect(proc).toMatchObject({ resourceType: 'Procedure', bodySite: [{ text: 'left antecubital' }] });
-    expect(proc.extension[0].valueString).toBe('capture');
+    expect(proc.extension[0].valueString).toBe('entered'); // no time said: device clock, labelled
     expect(b.entry.at(-1)!.resource.resourceType).toBe('Provenance');
   });
 });

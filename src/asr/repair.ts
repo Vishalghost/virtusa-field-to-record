@@ -36,6 +36,11 @@ const RULES: [RegExp, string][] = [
   // Units split or misspelled.
   [/\b(?:mila|milla|mili|meli)\s?grams?\b/gi, 'milligram'],
   [new RegExp(`(?<=\\b${NUM}\\s+)(?:leader|litter|lita|leeta|leeter)s?\\b`, 'gi'), 'litre'],
+  // Negated verbs split in two ("Kudu Kala"): missing these records a drug as GIVEN when
+  // it was withheld, so they're kept even though they come from synthetic speech.
+  // Joined, they aren't English words, so they can't misfire on English dictation.
+  [/\bk[ou]du\s+k[ae]la\b/gi, 'kudukala'],
+  [/\bpo\s?da\s?la\b/gi, 'podala'],
   // Verbs split into English words.
   [/\bkudu\s?then\b/gi, 'kuduthen'],
   [/\bpot\s?ten\b/gi, 'potten'],

@@ -27,7 +27,19 @@ export default defineConfig({
           {
             urlPattern: ({ url }) => url.pathname.startsWith('/models/') || url.pathname.startsWith('/ort/'),
             handler: 'CacheFirst',
-            options: { cacheName: 'ftr-models', expiration: { maxEntries: 64 }, cacheableResponse: { statuses: [200] } },
+            options: {
+              // v2: v1 could hold the HTML fallback page cached under a model URL.
+              cacheName: 'ftr-models-v2',
+              expiration: { maxEntries: 64 },
+              cacheableResponse: { statuses: [200] },
+              plugins: [
+                {
+                  // A missing model file is answered with index.html (200). Never cache that
+                  // as the model, or the app stays broken even after the model is installed.
+                  cacheWillUpdate: async ({ response }) => (response.headers.get('content-type')?.includes('text/html') ? null : response),
+                },
+              ],
+            },
           },
         ],
       },

@@ -14,6 +14,12 @@ describe('speech repairs', () => {
     expect(repairTranscript('Morphine Rondu Ya').text).toBe('Morphine rendu Ya');
   });
 
+  it('rejoins a split Tamil negation so a withheld drug is not recorded as given', () => {
+    const { text } = repairTranscript('Morphine Kudu Kala, allergy irukku.'); // whisper-base.en output
+    expect(text).toBe('Morphine kudukala, allergy irukku.');
+    expect(createDraft(text, 'voice', 'INC-N').medications).toEqual([]);
+  });
+
   it('leaves correct English dictation alone', () => {
     for (const t of ['Gave 4 mg zofran IV push at 14:32.', 'Started 18g IV left AC.', 'Oxygen 4 liters per minute via non rebreather.', 'The team leader arrived.']) {
       expect(repairTranscript(t)).toEqual({ text: t, repairs: [] });

@@ -26,6 +26,21 @@ function call(req: AsrRequest, onProgress?: Progress): Promise<AsrResponse> {
   });
 }
 
+/**
+ * Is this model's files actually served? A missing file comes back as the app's HTML
+ * page (status 200), so check that config.json really is JSON.
+ */
+export async function modelInstalled(model: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/models/${model}/config.json`);
+    if (!res.ok || res.headers.get('content-type')?.includes('text/html')) return false;
+    await res.json();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Download (first time) and initialise the model. Afterwards it works offline. */
 export async function prepareModel(model: string, onProgress?: Progress): Promise<void> {
   await call({ type: 'load', model }, onProgress);

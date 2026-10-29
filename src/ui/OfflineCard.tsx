@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { MODELS, prepareModel } from '../asr/asrClient';
+import { MODELS, modelInstalled, prepareModel } from '../asr/asrClient';
 
 export type ModelKey = keyof typeof MODELS;
 
@@ -15,6 +15,20 @@ export function OfflineCard({ model, onModel, ready, onReady }: Props) {
   const [progress, setProgress] = useState<Record<string, number>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [installed, setInstalled] = useState<Record<string, boolean>>({});
+
+  // Only offer models whose files are on the server; fall back to one that is.
+  useEffect(() => {
+    (async () => {
+      const keys = Object.keys(MODELS) as ModelKey[];
+      const found = Object.fromEntries(await Promise.all(keys.map(async (k) => [k, await modelInstalled(MODELS[k])] as const)));
+      setInstalled(found);
+      if (found[model] === false) {
+        const other = keys.find((k) => found[k]);
+        if (other) onModel(other);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     const up = () => setOnline(navigator.onLine);
@@ -45,8 +59,8 @@ export function OfflineCard({ model, onModel, ready, onReady }: Props) {
         <label class="inline">
           Model
           <select value={model} disabled={busy} onChange={(e) => onModel((e.target as HTMLSelectElement).value as ModelKey)}>
-            <option value="tiny">Whisper tiny.en (~45 MB, fastest)</option>
-            <option value="base">Whisper base.en (~80 MB, more accurate)</option>
+            <option value="tiny" disabled={installed.tiny === false}>Whisper tiny.en (~45 MB, fastest){installed.tiny === false ? ' (not installed)' : ''}</option>
+            <option value="base" disabled={installed.base === false}>Whisper base.en (~80 MB, more accurate){installed.base === false ? ' (not installed)' : ''}</option>
           </select>
         </label>
         <button class="secondary" disabled={busy || ready} onClick={prepare}>

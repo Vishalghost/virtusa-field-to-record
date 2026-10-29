@@ -1,6 +1,7 @@
 // Record lifecycle: create a draft from a transcript, apply reviewer edits (each one
 // logged), and amend a signed record as a new linked version.
 
+import type { SpeechRepair } from '../asr/repair';
 import { processTranscript } from '../nlp/pipeline';
 import { drugByName } from '../nlp/lexicon';
 import { medicationFlags, procedureFlags, isBlocked } from '../nlp/review';
@@ -8,8 +9,25 @@ import type { ClinicalRecord, MedicationEvent, ProcedureEvent } from './schema';
 
 const uuid = () => crypto.randomUUID();
 
-export function createDraft(transcript: string, source: 'voice' | 'text', incidentId: string, now = new Date()): ClinicalRecord {
+export interface SpeechInfo {
+  rawTranscript: string;
+  repairs: SpeechRepair[];
+}
+
+/** Any event whose source text was produced by a speech repair must be confirmed by a human. */
+function flagRepaired(events: (MedicationEvent | ProcedureEvent)[], repairs: SpeechRepair[]) {
+  for (const ev of events) {
+    const hit = repairs.filter((r) => ev.sourceSpans.some((s) => s.start < r.end && s.end > r.start));
+    if (hit.length) {
+      ev.flags.push({ severity: 'block', reason: `Speech fix-up: heard ${hit.map((r) => `"${r.heard}" as "${r.readAs}"`).join(', ')}; confirm` });
+    }
+  }
+}
+
+export function createDraft(transcript: string, source: 'voice' | 'text', incidentId: string, now = new Date(), speech?: SpeechInfo): ClinicalRecord {
   const { medications, procedures } = processTranscript(transcript);
+  const repairs = speech?.repairs ?? [];
+  flagRepaired([...medications, ...procedures], repairs);
   return {
     id: uuid(),
     version: 1,
@@ -18,6 +36,7 @@ export function createDraft(transcript: string, source: 'voice' | 'text', incide
     source,
     recordedAt: now.toISOString(),
     transcript,
+    ...(repairs.length ? { rawTranscript: speech!.rawTranscript, speechRepairs: repairs } : {}),
     medications,
     procedures,
     edits: [],

@@ -3,5 +3,7 @@ dist/
 dev-dist/
 public/models/
 public/ort/
+# Real voice recordings are personal data; only the script is committed.
+data/real/*.wav
 *.log
 scripts/_*.ts

@@ -62,6 +62,11 @@ export function ReviewCard({ draft, onChange, onSign, onDiscard }: Props) {
       <h2>2 · Review</h2>
       <p class="hint">Underlined text is where each item came from. Hover a row to see its source. Editing a field logs the change and confirms the item.</p>
       <Transcript text={draft.transcript} events={[...draft.medications, ...draft.procedures]} active={active} />
+      {draft.rawTranscript && (
+        <p class="hint">
+          Speech model heard: “{draft.rawTranscript}”. Fixed: {draft.speechRepairs!.map((r) => `“${r.heard}” → “${r.readAs}”`).join(', ')}. Items built from these need confirming.
+        </p>
+      )}
 
       <h3>Medications</h3>
       <div class="table-wrap">

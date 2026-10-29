@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "eval": "tsx scripts/eval.ts",
+    "eval:asr": "tsx scripts/eval-asr.ts",
     "fetch-models": "node scripts/fetch-models.mjs",
     "verify-rxnorm": "node scripts/verify-rxnorm.mjs",
     "asr:node": "node scripts/asr-node.mjs",

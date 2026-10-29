@@ -37,6 +37,7 @@ In the app: **Prepare for offline** once (loads the model into the cache). After
 | `npm test` | Unit tests (normalizer, extractor, Tanglish, linker, audit chain incl. tamper detection, device signatures, framing/loss/CRC, FHIR, HTML/PDF) |
 | `npm run eval -- --verbose` | Event-level precision/recall/F1 + per-field accuracy on the gold-labelled synthetic set |
 | `npm run asr:node -- data/synthetic/audio/*.wav` | Transcribe WAVs with the same local Whisper files, in Node |
+| `npm run eval:asr [-- --verbose]` | Real-speech accuracy: Whisper → speech repairs → extraction on `data/real/<id>.wav`, scored raw vs repaired against `data/real/script.json` |
 | `npm run verify-rxnorm` | Check every RxNorm code in the drug lexicon against NLM RxNav (needs network, sends codes only) |
 
 ## How it works
@@ -44,6 +45,8 @@ In the app: **Prepare for offline** once (loads the model into the cache). After
 | Stage | File | Notes |
 |---|---|---|
 | Capture | `src/capture/recorder.ts` | MediaRecorder → 16 kHz mono Float32 |
+| Hands-free | `src/ui/CaptureCard.tsx` | On by default: Stop → transcribe → speech repairs → extract → spoken read-back that names the items needing checks. No typing. |
+| Speech repairs | `src/asr/repair.ts` | Fixes predictable English-model mishearings of Tanglish ("Nala Leader" → "naalu litre", "4 line" → "IV line"). Raw ASR text is kept on the record; any event built from a repaired word is blocked until confirmed. |
 | Speech-to-text | `src/asr/asr.worker.ts` | transformers.js + Whisper (q8 ONNX, WASM) in a Web Worker. Model **and** ONNX runtime are self-hosted (`/models`, `/ort`); remote loading is disabled. The browser's Web Speech API is deliberately not used because Chrome sends that audio to a server. |
 | Normalize | `src/nlp/normalize.ts` | "three twenty four milligrams" → `324 mg`, unit aliases; keeps a char map back to the verbatim transcript |
 | Extract | `src/nlp/extract.ts` | Rule NER in priority order (corrections, procedures, times, doses, drugs, routes, sites), fuzzy/phonetic drug recovery for ASR errors ("on dance a tron" → ondansetron), NegEx-lite negation ("no IV access", "allergic to morphine") |
@@ -80,7 +83,7 @@ These numbers are optimistic. The rules and the test set were written by the sam
 - whisper-tiny makes real errors on drug names (heard "epi IM" as "APIM"). The fuzzy matcher recovers some, and the rest surface as blocking review flags. `base.en` is more accurate at about twice the size.
 - Rule-based NER only. The plan's phase 2 (a small fine-tuned NER model exported to ONNX and merged with the rules) is not built.
 - Device signatures prove **which key** signed, not which person: there is no device enrolment yet, so the receiver shows the key fingerprint for a human to check. Clearing site data creates a new key. The chain is local to one device.
-- Tamil support is **romanized text** (typed, or English ASR output). Tamil-script speech recognition is not built.
+- Tamil support is **romanized text** (typed, or English ASR output). Tamil-script speech recognition is not built. On synthetic Tanglish speech, whisper-tiny.en gets 3/10 test lines fully right (4/10 after repairs); it often hears "IV" as "4". Real-voice numbers: record the test lines in the app ("Record test lines") and run `npm run eval:asr`. Recordings are git-ignored.
 - No radio driver: frames are sized for LoRa/SMS, but browsers can't drive a LoRa radio. Hand-off today is copy/paste, the SMS app, or QR.
 - iOS Safari may evict cached models after long inactivity. The app shows model readiness.
 - `dist/assets` contains a duplicate copy of the ONNX runtime `.wasm` that Vite bundles. The worker loads the `/ort/` copy.

@@ -5,6 +5,7 @@
 // server, which would send the record text off the device. Only voices that report
 // `localService: true` are used; if none exists, read-back is unavailable.
 
+import { isBlocked } from '../nlp/review';
 import type { ClinicalRecord } from '../record/schema';
 
 const UNIT_WORDS: Record<string, string> = {
@@ -20,16 +21,22 @@ const ROUTE_WORDS: Record<string, string> = {
 /** "14:05" -> "14 05" so engines say "fourteen oh five" rather than a ratio. */
 const sayTime = (t: string | null) => (t ? `, at ${t.replace(':', ' ')}` : '');
 
+const CHECK = ' Check this.';
+
 export function readbackText(r: ClinicalRecord): string {
   const parts: string[] = [`Incident ${r.incidentId.split('-').at(-1)}.`];
   for (const m of r.medications) {
-    const dose = m.dose !== null ? `${m.dose} ${UNIT_WORDS[m.unit ?? ''] ?? m.unit ?? 'no unit'}` : 'dose not recorded';
-    parts.push(`${m.drug ?? 'Unidentified drug'}, ${dose}, ${m.route ? ROUTE_WORDS[m.route] ?? m.route : 'route not recorded'}${sayTime(m.administeredAt)}.`);
+    const dose = m.dose !== null
+      ? `${m.dose} ${UNIT_WORDS[m.unit ?? ''] ?? m.unit ?? 'no unit'}`
+      : m.doseAlternatives ? `dose unclear, ${m.doseAlternatives.join(' or ')}` : 'dose not recorded';
+    parts.push(`${m.drug ?? 'Unidentified drug'}, ${dose}, ${m.route ? ROUTE_WORDS[m.route] ?? m.route : 'route not recorded'}${sayTime(m.administeredAt)}.${isBlocked(m) ? CHECK : ''}`);
   }
   for (const p of r.procedures) {
-    parts.push(`${p.procedure}${p.detail ? `, ${p.detail.replace(/G$/, ' gauge')}` : ''}${p.site ? `, ${p.site}` : ''}${sayTime(p.performedAt)}.`);
+    parts.push(`${p.procedure}${p.detail ? `, ${p.detail.replace(/G$/, ' gauge')}` : ''}${p.site ? `, ${p.site}` : ''}${sayTime(p.performedAt)}.${isBlocked(p) ? CHECK : ''}`);
   }
   if (!r.medications.length && !r.procedures.length) parts.push('No medications or procedures recorded.');
+  const toCheck = [...r.medications, ...r.procedures].filter(isBlocked).length;
+  parts.push(toCheck ? `${toCheck} item${toCheck > 1 ? 's need' : ' needs'} checking before signing.` : 'Ready to sign.');
   return parts.join(' ');
 }
 

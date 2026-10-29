@@ -119,14 +119,14 @@ try {
   check('app shell loads with network off', true);
   check('signed record persisted (IndexedDB)', kept === 1, `${kept} record(s)`);
 
-  // 4. offline transcription of a WAV
+  // 4. offline, hands-free: audio in -> transcribed -> extracted into review, no typing
   const { root } = await send('DOM.getDocument');
   const { nodeId } = await send('DOM.querySelector', { nodeId: root.nodeId, selector: 'input[type=file]' });
   await send('DOM.setFileInputFiles', { nodeId, files: [WAV] });
-  await waitFor(`document.querySelector('.status')?.textContent.startsWith('Transcribed') || document.querySelector('.status')?.textContent.startsWith('Transcription failed')`, 'offline transcription', 180000);
-  const status = await evaluate(`document.querySelector('.status').textContent`);
-  const text = await evaluate(`document.querySelector('textarea').value`);
-  check('offline transcription', status.startsWith('Transcribed') && /aspirin/i.test(text), `${status} "${text}"`);
+  await waitFor(`!!document.querySelector('blockquote.transcript') || document.querySelector('.status')?.textContent.startsWith('Transcription failed')`, 'offline hands-free transcription', 180000);
+  const transcript = await evaluate(`document.querySelector('blockquote.transcript')?.textContent ?? document.querySelector('.status').textContent`);
+  const drugs = await evaluate(`[...document.querySelectorAll('tbody tr select')].filter((s, i) => i % 3 === 0).map((s) => s.value).join(',')`);
+  check('offline hands-free: speech -> review, no typing', /aspirin/i.test(transcript) && drugs.includes('aspirin'), `"${transcript}" -> ${drugs}`);
 } catch (e) {
   check('e2e run', false, e.message);
 } finally {

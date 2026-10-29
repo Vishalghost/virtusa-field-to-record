@@ -86,6 +86,10 @@ export interface ClinicalRecord {
   recordedAt: string;
   /** Verbatim transcript; never modified after extraction. */
   transcript: string;
+  /** Speech model output before mishearing repairs, if any were applied (evidence of what was heard). */
+  rawTranscript?: string;
+  /** Repairs applied to `rawTranscript` to produce `transcript`; spans index `transcript`. */
+  speechRepairs?: { heard: string; readAs: string; start: number; end: number }[];
   medications: MedicationEvent[];
   procedures: ProcedureEvent[];
   edits: EditEntry[];

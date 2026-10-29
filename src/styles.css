@@ -84,6 +84,12 @@ a.button.small { min-height: 36px; padding: 6px 10px; font-size: 0.9rem; }
 .frame-text { display: block; margin-top: 4px; word-break: break-all; color: var(--muted); }
 .received { margin-top: 8px; }
 
+.testlines { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 8px; }
+.testlines summary { cursor: pointer; color: var(--muted); }
+.testlines ol { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+.testlines li { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.testlines li.active { color: var(--accent); }
+
 @media (max-width: 640px) {
   main { padding: 10px; }
   button.big { flex: 1; }

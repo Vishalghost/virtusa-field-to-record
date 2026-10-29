@@ -1,0 +1,22 @@
+[
+  { "id": "real-01", "tags": ["english"], "text": "Gave aspirin 300 milligrams by mouth at 10:42.",
+    "gold": { "medications": [{ "drug": "aspirin", "dose": 300, "unit": "mg", "route": "PO", "site": null, "time": "10:42" }], "procedures": [] } },
+  { "id": "real-02", "tags": ["english"], "text": "Started an 18 gauge IV, left antecubital.",
+    "gold": { "medications": [], "procedures": [{ "procedure": "IV access", "detail": "18G", "site": "left antecubital", "time": null }] } },
+  { "id": "real-03", "tags": ["english"], "text": "Epinephrine 0.3 milligrams IM, right thigh.",
+    "gold": { "medications": [{ "drug": "epinephrine", "dose": 0.3, "unit": "mg", "route": "IM", "site": "right thigh", "time": null }], "procedures": [] } },
+  { "id": "real-04", "tags": ["tanglish"], "text": "Aspirin 300 milligram vaai vazhiya kuduthen.",
+    "gold": { "medications": [{ "drug": "aspirin", "dose": 300, "unit": "mg", "route": "PO", "site": null, "time": null }], "procedures": [] } },
+  { "id": "real-05", "tags": ["tanglish"], "text": "IV line potten, left hand.",
+    "gold": { "medications": [], "procedures": [{ "procedure": "IV access", "detail": null, "site": "left hand", "time": null }] } },
+  { "id": "real-06", "tags": ["tanglish"], "text": "Oxygen naalu litre per minute, non rebreather la kuduthen.",
+    "gold": { "medications": [{ "drug": "oxygen", "dose": 4, "unit": "lpm", "route": "INH", "site": null, "time": null }], "procedures": [] } },
+  { "id": "real-07", "tags": ["tanglish", "unclear-dose"], "text": "Morphine rendu ya anju milligram IV.",
+    "gold": { "medications": [{ "drug": "morphine", "dose": null, "unit": "mg", "route": "IV", "site": null, "time": null }], "procedures": [] } },
+  { "id": "real-08", "tags": ["tanglish"], "text": "Ondansetron naalu milligram IV kuduthen.",
+    "gold": { "medications": [{ "drug": "ondansetron", "dose": 4, "unit": "mg", "route": "IV", "site": null, "time": null }], "procedures": [] } },
+  { "id": "real-09", "tags": ["tanglish", "negation"], "text": "Morphine kudukala, allergy irukku.",
+    "gold": { "medications": [], "procedures": [] } },
+  { "id": "real-10", "tags": ["tanglish"], "text": "Paracetamol 500 milligram vaai vazhiya kuduthen at 11:05.",
+    "gold": { "medications": [{ "drug": "acetaminophen", "dose": 500, "unit": "mg", "route": "PO", "site": null, "time": "11:05" }], "procedures": [] } }
+]

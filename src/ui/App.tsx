@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
-import { amend, createDraft } from '../record/record';
+import { amend, createDraft, type SpeechInfo } from '../record/record';
+import { readbackText, speakLocally } from './readback';
 import type { ClinicalRecord } from '../record/schema';
 import { deleteDraft, listDrafts, listSigned, saveDraft, signAndStore } from '../store/db';
 import { CaptureCard } from './CaptureCard';
@@ -30,6 +31,13 @@ export function App() {
     saveDraft(r).catch((e) => setError(String(e)));
   };
 
+  const extract = (t: string, src: 'voice' | 'text', speech?: SpeechInfo, handsFree = false) => {
+    const d = createDraft(t, src, incidentId, new Date(), speech);
+    update(d);
+    // Hands-free: the medic never saw the text, so say what was understood and what needs checking.
+    if (handsFree) speakLocally(readbackText(d)).catch(() => {});
+  };
+
   const sign = async (signer: string) => {
     try {
       await signAndStore(draft!, signer);
@@ -55,7 +63,7 @@ export function App() {
       {error && <p class="error" onClick={() => setError(null)}>{error}</p>}
       {draft
         ? <ReviewCard draft={draft} onChange={update} onSign={sign} onDiscard={() => { deleteDraft(draft.id); setDraft(null); }} />
-        : <CaptureCard model={model} onModelUsed={() => setModelReady(true)} onExtract={(t, src) => update(createDraft(t, src, incidentId))} />}
+        : <CaptureCard model={model} onModelUsed={() => setModelReady(true)} onExtract={extract} />}
       <RecordsCard
         records={signed}
         onAmend={(r) => update(amend(r))}
